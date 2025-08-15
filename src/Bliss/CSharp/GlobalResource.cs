@@ -133,7 +133,6 @@ public static class GlobalResource {
         // Default model effect.
         LitModelShaderPair = new ShaderPair(graphicsDevice, Vertex3D.VertexLayout, "core/shaders/msh_generic.vert", "core/shaders/msh_lit.frag");
         LitModelShaderPair.AddBufferLayout("MatrixBuffer", SimpleBufferType.Uniform, ShaderStages.Vertex);
-        LitModelShaderPair.AddBufferLayout("ColorBuffer", SimpleBufferType.Uniform, ShaderStages.Fragment);
         LitModelShaderPair.AddTextureLayout("fAlbedo");
         LitModelShaderPair.AddTextureLayout("fRough");
         LitModelShaderPair.AddTextureLayout("fMetal");
@@ -142,7 +141,6 @@ public static class GlobalResource {
         // Default model effect.
         UnlitModelShaderPair = new ShaderPair(graphicsDevice, Vertex3D.VertexLayout, "core/shaders/msh_generic.vert", "core/shaders/msh_unlit.frag");
         UnlitModelShaderPair.AddBufferLayout("MatrixBuffer", SimpleBufferType.Uniform, ShaderStages.Vertex);
-        UnlitModelShaderPair.AddBufferLayout("ColorBuffer", SimpleBufferType.Uniform, ShaderStages.Fragment);
         UnlitModelShaderPair.AddTextureLayout("fAlbedo");
         
         // Default immediate renderer texture.

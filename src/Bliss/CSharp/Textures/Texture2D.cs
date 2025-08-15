@@ -46,12 +46,12 @@ public class Texture2D : Disposable {
     /// <summary>
     /// Gets the device texture created from the images.
     /// </summary>
-    public Texture DeviceTexture { get; }
+    public Texture? DeviceTexture { get; }
 
     /// <summary>
     /// A dictionary that caches resource sets associated with samplers, used to avoid redundant resource set creation.
     /// </summary>
-    private Dictionary<(Sampler, SimpleTextureLayout), ResourceSet> _cachedResourceSets;
+    private Dictionary<(Sampler, SimpleTextureLayout), ResourceSet?>? _cachedResourceSets = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Texture2D"/> class using an image file path.
@@ -90,7 +90,7 @@ public class Texture2D : Disposable {
         this.Images = mipmap ? MipmapHelper.GenerateMipmaps(image) : [image];
         this.Format = srgb ? PixelFormat.R8G8B8A8UNormSRgb : PixelFormat.R8G8B8A8UNorm;
         this.DeviceTexture = this.CreateDeviceTexture();
-        this._cachedResourceSets = new Dictionary<(Sampler, SimpleTextureLayout), ResourceSet>();
+        this._cachedResourceSets = new Dictionary<(Sampler, SimpleTextureLayout), ResourceSet?>();
     }
     
     /// <summary>
@@ -100,8 +100,9 @@ public class Texture2D : Disposable {
     /// <param name="sampler">The sampler used for the resource set.</param>
     /// <param name="layout">The resource layout used for the resource set.</param>
     /// <returns>The resource set associated with the specified sampler and resource layout.</returns>
-    public ResourceSet GetResourceSet(Sampler sampler, SimpleTextureLayout layout) {
-        if (!this._cachedResourceSets.TryGetValue((sampler, layout), out ResourceSet? resourceSet)) {
+    public ResourceSet? GetResourceSet(Sampler sampler, SimpleTextureLayout layout) {
+        ResourceSet? resourceSet = null;
+        if (!this._cachedResourceSets?.TryGetValue((sampler, layout), out resourceSet) ?? false) {
             ResourceSet newResourceSet = this.GraphicsDevice.ResourceFactory.CreateResourceSet(new ResourceSetDescription(layout.Layout, this.DeviceTexture, sampler));
             
             this._cachedResourceSets.Add((sampler, layout), newResourceSet);
@@ -181,11 +182,11 @@ public class Texture2D : Disposable {
 
     protected override void Dispose(bool disposing) {
         if (disposing) {
-            foreach (ResourceSet resourceSet in this._cachedResourceSets.Values) {
-                resourceSet.Dispose();
+            foreach (ResourceSet? resourceSet in _cachedResourceSets?.Values.ToArray() ?? []) {
+                resourceSet?.Dispose();
             }
             
-            this.DeviceTexture.Dispose();
+            this.DeviceTexture?.Dispose();
         }
     }
 }

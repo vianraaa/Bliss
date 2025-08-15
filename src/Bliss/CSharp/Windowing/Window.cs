@@ -36,15 +36,11 @@ public static class Window {
     /// </summary>
     /// <returns>The default <see cref="GraphicsBackend"/> for the current platform.</returns>
     public static GraphicsBackend GetPlatformDefaultBackend() {
-        if (OperatingSystem.IsWindows()) {
-            return GraphicsBackend.Direct3D11;
-        }
-        else if (OperatingSystem.IsMacOS()) {
+        if (OperatingSystem.IsMacOS()) {
             return GraphicsDevice.IsBackendSupported(GraphicsBackend.Metal) ? GraphicsBackend.Metal : GraphicsBackend.OpenGL;
         }
-        else {
-            return GraphicsDevice.IsBackendSupported(GraphicsBackend.Vulkan) ? GraphicsBackend.Vulkan : GraphicsBackend.OpenGL;
-        }
+        // DirectX is really iffy and causes issues.
+        return GraphicsDevice.IsBackendSupported(GraphicsBackend.Vulkan) ? GraphicsBackend.Vulkan : GraphicsBackend.OpenGL;
     }
 
     /// <summary>
