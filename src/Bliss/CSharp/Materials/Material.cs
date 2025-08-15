@@ -17,7 +17,7 @@ public class Material {
     /// <summary>
     /// The effect (shader program) applied to this material.
     /// </summary>
-    public Effect Effect;
+    public ShaderPair ShaderPair;
 
     /// <summary>
     /// Specifies the blend state for rendering, determining how colors are blended on the screen.
@@ -39,11 +39,11 @@ public class Material {
     /// graphics device, shader effect, and optional blend state.
     /// </summary>
     /// <param name="graphicsDevice">The graphics device to associate with this material.</param>
-    /// <param name="effect">The effect (shader) to apply to the material.</param>
+    /// <param name="shaderPair">The effect (shader) to apply to the material.</param>
     /// <param name="blendState">The optional blend state to define how this material blends with others during rendering. If not specified, blending is disabled by default.</param>
-    public Material(GraphicsDevice graphicsDevice, Effect effect, BlendStateDescription? blendState = null) {
+    public Material(GraphicsDevice graphicsDevice, ShaderPair shaderPair, BlendStateDescription? blendState = null) {
         this.GraphicsDevice = graphicsDevice;
-        this.Effect = effect;
+        this.ShaderPair = shaderPair;
         this.BlendState = blendState ?? BlendStateDescription.SINGLE_DISABLED;
         this.Parameters = new List<float>();
         this._maps = new Dictionary<string, MaterialMap>();

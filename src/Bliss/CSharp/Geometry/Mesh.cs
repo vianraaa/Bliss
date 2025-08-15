@@ -182,7 +182,7 @@ public class Mesh : Disposable {
             indices.Add((uint) (i % sides + 1));
         }
     
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
     
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap {
             Texture = GlobalResource.DefaultModelTexture,
@@ -266,7 +266,7 @@ public class Mesh : Disposable {
             22, 23, 20
         ];
     
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
     
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap() {
             Texture = GlobalResource.DefaultModelTexture,
@@ -348,7 +348,7 @@ public class Mesh : Disposable {
             }
         }
 
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
 
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap() {
             Texture = GlobalResource.DefaultModelTexture,
@@ -452,7 +452,7 @@ public class Mesh : Disposable {
             indices.Add((uint) (centerIndex + slice + 1));
         }
     
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
     
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap() {
             Texture = GlobalResource.DefaultModelTexture,
@@ -551,7 +551,7 @@ public class Mesh : Disposable {
             indices.Add((uint) (baseIndex + 2));
         }
     
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
         
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap {
             Texture = GlobalResource.DefaultModelTexture,
@@ -701,7 +701,7 @@ public class Mesh : Disposable {
             }
         }
         
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
         
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap {
             Texture = GlobalResource.DefaultModelTexture,
@@ -779,7 +779,7 @@ public class Mesh : Disposable {
             indices.Add((uint) baseIndex);
         }
 
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
 
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap {
             Texture = GlobalResource.DefaultModelTexture,
@@ -854,7 +854,7 @@ public class Mesh : Disposable {
             }
         }
 
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
         
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap {
             Texture = GlobalResource.DefaultModelTexture,
@@ -944,7 +944,7 @@ public class Mesh : Disposable {
             }
         }
         
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
         
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap {
             Texture = GlobalResource.DefaultModelTexture,
@@ -1006,7 +1006,7 @@ public class Mesh : Disposable {
             }
         }
         
-        Material material = new Material(graphicsDevice, GlobalResource.LitModelEffect);
+        Material material = new Material(graphicsDevice, GlobalResource.LitModelShaderPair);
 
         material.AddMaterialMap(MaterialMapType.Albedo.GetName(), new MaterialMap {
             Texture = GlobalResource.DefaultModelTexture,
@@ -1212,9 +1212,9 @@ public class Mesh : Disposable {
         this._pipelineDescription.BlendState = this.Material.BlendState;
         this._pipelineDescription.DepthStencilState = depthStencilState ?? DepthStencilStateDescription.DEPTH_ONLY_LESS_EQUAL;
         this._pipelineDescription.RasterizerState = rasterizerState ?? RasterizerStateDescription.DEFAULT;
-        this._pipelineDescription.BufferLayouts = this.Material.Effect.GetBufferLayouts();
-        this._pipelineDescription.TextureLayouts = this.Material.Effect.GetTextureLayouts();
-        this._pipelineDescription.ShaderSet = this.Material.Effect.ShaderSet;
+        this._pipelineDescription.BufferLayouts = this.Material.ShaderPair.GetBufferLayouts();
+        this._pipelineDescription.TextureLayouts = this.Material.ShaderPair.GetTextureLayouts();
+        this._pipelineDescription.ShaderSet = this.Material.ShaderPair.ShaderSet;
         this._pipelineDescription.Outputs = output;
         
         if (this.IndexCount > 0) {
@@ -1224,25 +1224,25 @@ public class Mesh : Disposable {
             commandList.SetIndexBuffer(this._indexBuffer, IndexFormat.UInt32);
             
             // Set pipeline.
-            commandList.SetPipeline(this.Material.Effect.GetPipeline(this._pipelineDescription).Pipeline);
+            commandList.SetPipeline(this.Material.ShaderPair.GetPipeline(this._pipelineDescription).Pipeline);
             
             // Set projection view buffer.
-            commandList.SetGraphicsResourceSet(this.Material.Effect.GetBufferLayoutSlot("MatrixBuffer"), this._modelMatrixBuffer.GetResourceSet(this.Material.Effect.GetBufferLayout("MatrixBuffer")));
+            commandList.SetGraphicsResourceSet(this.Material.ShaderPair.GetBufferLayoutSlot("MatrixBuffer"), this._modelMatrixBuffer.GetResourceSet(this.Material.ShaderPair.GetBufferLayout("MatrixBuffer")));
             
             // Set color buffer.
-            commandList.SetGraphicsResourceSet(this.Material.Effect.GetBufferLayoutSlot("ColorBuffer"), this._colorBuffer.GetResourceSet(this.Material.Effect.GetBufferLayout("ColorBuffer")));
+            commandList.SetGraphicsResourceSet(this.Material.ShaderPair.GetBufferLayoutSlot("ColorBuffer"), this._colorBuffer.GetResourceSet(this.Material.ShaderPair.GetBufferLayout("ColorBuffer")));
             
             // Set material texture.
-            foreach (SimpleTextureLayout layout in this.Material.Effect.GetTextureLayouts()) {
-                ResourceSet? resourceSet = this.Material.GetResourceSet(sampler ?? GraphicsHelper.GetSampler(this.GraphicsDevice, SamplerType.PointWrap), this.Material.Effect.GetTextureLayout(layout.Name));
+            foreach (SimpleTextureLayout layout in this.Material.ShaderPair.GetTextureLayouts()) {
+                ResourceSet? resourceSet = this.Material.GetResourceSet(sampler ?? GraphicsHelper.GetSampler(this.GraphicsDevice, SamplerType.PointWrap), this.Material.ShaderPair.GetTextureLayout(layout.Name));
                 
                 if (resourceSet != null) {
-                    commandList.SetGraphicsResourceSet(this.Material.Effect.GetTextureLayoutSlot(layout.Name), resourceSet);
+                    commandList.SetGraphicsResourceSet(this.Material.ShaderPair.GetTextureLayoutSlot(layout.Name), resourceSet);
                 }
             }
             
             // Apply effect.
-            this.Material.Effect.Apply(commandList, this.Material);
+            this.Material.ShaderPair.Apply(commandList, this.Material);
             
             // Draw.
             commandList.DrawIndexed(this.IndexCount);
@@ -1253,25 +1253,25 @@ public class Mesh : Disposable {
             commandList.SetVertexBuffer(0, this._vertexBuffer);
             
             // Set pipeline.
-            commandList.SetPipeline(this.Material.Effect.GetPipeline(this._pipelineDescription).Pipeline);
+            commandList.SetPipeline(this.Material.ShaderPair.GetPipeline(this._pipelineDescription).Pipeline);
             
             // Set projection view buffer.
-            commandList.SetGraphicsResourceSet(this.Material.Effect.GetBufferLayoutSlot("MatrixBuffer"), this._modelMatrixBuffer.GetResourceSet(this.Material.Effect.GetBufferLayout("MatrixBuffer")));
+            commandList.SetGraphicsResourceSet(this.Material.ShaderPair.GetBufferLayoutSlot("MatrixBuffer"), this._modelMatrixBuffer.GetResourceSet(this.Material.ShaderPair.GetBufferLayout("MatrixBuffer")));
             
             // Set color buffer.
-            commandList.SetGraphicsResourceSet(this.Material.Effect.GetBufferLayoutSlot("ColorBuffer"), this._colorBuffer.GetResourceSet(this.Material.Effect.GetBufferLayout("ColorBuffer")));
+            commandList.SetGraphicsResourceSet(this.Material.ShaderPair.GetBufferLayoutSlot("ColorBuffer"), this._colorBuffer.GetResourceSet(this.Material.ShaderPair.GetBufferLayout("ColorBuffer")));
             
             // Set material texture.
-            foreach (SimpleTextureLayout layout in this.Material.Effect.GetTextureLayouts()) {
-                ResourceSet? resourceSet = this.Material.GetResourceSet(sampler ?? GraphicsHelper.GetSampler(this.GraphicsDevice, SamplerType.PointWrap), this.Material.Effect.GetTextureLayout(layout.Name));
+            foreach (SimpleTextureLayout layout in this.Material.ShaderPair.GetTextureLayouts()) {
+                ResourceSet? resourceSet = this.Material.GetResourceSet(sampler ?? GraphicsHelper.GetSampler(this.GraphicsDevice, SamplerType.PointWrap), this.Material.ShaderPair.GetTextureLayout(layout.Name));
                 
                 if (resourceSet != null) {
-                    commandList.SetGraphicsResourceSet(this.Material.Effect.GetTextureLayoutSlot(layout.Name), resourceSet);
+                    commandList.SetGraphicsResourceSet(this.Material.ShaderPair.GetTextureLayoutSlot(layout.Name), resourceSet);
                 }
             }
             
             // Apply effect.
-            this.Material.Effect.Apply(commandList, this.Material);
+            this.Material.ShaderPair.Apply(commandList, this.Material);
             
             // Draw.
             commandList.Draw(this.VertexCount);

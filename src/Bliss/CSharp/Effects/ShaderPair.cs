@@ -8,7 +8,7 @@ using Veldrid.SPIRV;
 
 namespace Bliss.CSharp.Effects;
 
-public class Effect : Disposable {
+public class ShaderPair : Disposable {
     
     /// <summary>
     /// The graphics device used for creating and managing graphical resources.
@@ -46,24 +46,24 @@ public class Effect : Disposable {
     private Dictionary<PipelineDescSimpl, SimplePipeline> _cachedPipelines;
     
     /// <summary>
-    /// Initializes a new instance of the <see cref="Effect"/> class using shader file paths.
+    /// Initializes a new instance of the <see cref="ShaderPair"/> class using shader file paths.
     /// </summary>
     /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> used for rendering.</param>
     /// <param name="vertexLayout">The <see cref="VertexLayoutDescription"/> defining the vertex structure.</param>
     /// <param name="vertPath">The path to the vertex shader file.</param>
     /// <param name="fragPath">The path to the fragment shader file.</param>
     /// <param name="constants">Optional specialization constants for shader customization.</param>
-    public Effect(GraphicsDevice graphicsDevice, VertexLayoutDescription vertexLayout, string vertPath, string fragPath, SpecializationConstant[]? constants = null) : this(graphicsDevice, vertexLayout, LoadBytecode(vertPath), LoadBytecode(fragPath), constants) { }
+    public ShaderPair(GraphicsDevice graphicsDevice, VertexLayoutDescription vertexLayout, string vertPath, string fragPath, SpecializationConstant[]? constants = null) : this(graphicsDevice, vertexLayout, LoadBytecode(vertPath), LoadBytecode(fragPath), constants) { }
     
     /// <summary>
-    /// Initializes a new instance of the <see cref="Effect"/> class using shader bytecode.
+    /// Initializes a new instance of the <see cref="ShaderPair"/> class using shader bytecode.
     /// </summary>
     /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> used for rendering.</param>
     /// <param name="vertexLayout">The <see cref="VertexLayoutDescription"/> defining the vertex structure.</param>
     /// <param name="vertBytes">The compiled bytecode for the vertex shader.</param>
     /// <param name="fragBytes">The compiled bytecode for the fragment shader.</param>
     /// <param name="constants">Optional specialization constants for shader customization.</param>
-    public Effect(GraphicsDevice graphicsDevice, VertexLayoutDescription vertexLayout, byte[] vertBytes, byte[] fragBytes, SpecializationConstant[]? constants = null) {
+    public ShaderPair(GraphicsDevice graphicsDevice, VertexLayoutDescription vertexLayout, byte[] vertBytes, byte[] fragBytes, SpecializationConstant[]? constants = null) {
         this.GraphicsDevice = graphicsDevice;
         
         ShaderDescription vertDescription = new ShaderDescription(ShaderStages.Vertex, vertBytes, "main");

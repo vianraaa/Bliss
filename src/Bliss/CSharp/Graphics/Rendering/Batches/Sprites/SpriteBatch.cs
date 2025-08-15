@@ -124,19 +124,19 @@ public class SpriteBatch : Disposable {
     private OutputDescription _requestedOutput;
 
     /// <summary>
-    /// The main <see cref="Effect"/>.
+    /// The main <see cref="ShaderPair"/>.
     /// </summary>
-    private Effect _mainEffect;
+    private ShaderPair _mainShaderPair;
     
     /// <summary>
-    /// The current <see cref="Effect"/>.
+    /// The current <see cref="ShaderPair"/>.
     /// </summary>
-    private Effect _currentEffect;
+    private ShaderPair _currentShaderPair;
 
     /// <summary>
-    /// The requested <see cref="Effect"/>.
+    /// The requested <see cref="ShaderPair"/>.
     /// </summary>
-    private Effect _requestedEffect;
+    private ShaderPair _requestedShaderPair;
     
     /// <summary>
     /// The main <see cref="BlendStateDescription"/>.
@@ -303,7 +303,7 @@ public class SpriteBatch : Disposable {
     /// <param name="commandList">The <see cref="CommandList"/> to which rendering commands will be submitted.</param>
     /// <param name="output">The <see cref="OutputDescription"/> that defines the render target and its properties.</param>
     /// <param name="sampler">An optional <see cref="Sampler"/> object used for texture sampling. Defaults to a point sampler if not specified.</param>
-    /// <param name="effect">An optional <see cref="Effect"/> to apply during rendering. Defaults to the global default sprite effect if not specified.</param>
+    /// <param name="effect">An optional <see cref="ShaderPair"/> to apply during rendering. Defaults to the global default sprite effect if not specified.</param>
     /// <param name="blendState">An optional <see cref="BlendStateDescription"/> for configuring blend state. Defaults to single alpha blending if not specified.</param>
     /// <param name="depthStencilState">An optional <see cref="DepthStencilStateDescription"/> for configuring depth and stencil behavior. Defaults to a depth-only, less-equal test configuration if not specified.</param>
     /// <param name="rasterizerState">An optional <see cref="RasterizerStateDescription"/> for defining rasterizer behavior. Defaults to no culling if not specified.</param>
@@ -311,7 +311,7 @@ public class SpriteBatch : Disposable {
     /// <param name="view">An optional <see cref="Matrix4x4"/> for the view matrix. Defaults to the identity matrix if not specified.</param>
     /// <param name="scissorRect">An optional <see cref="Rectangle"/> that defines the scissor rectangle for rendering. No scissor rect is applied if not specified.</param>
     /// <exception cref="Exception">Thrown when the method is called before the previous batch has been properly ended.</exception>
-    public void Begin(CommandList commandList, OutputDescription output, Sampler? sampler = null, Effect? effect = null, BlendStateDescription? blendState = null, DepthStencilStateDescription? depthStencilState = null, RasterizerStateDescription? rasterizerState = null, Matrix4x4? projection = null, Matrix4x4? view = null, Rectangle? scissorRect = null) {
+    public void Begin(CommandList commandList, OutputDescription output, Sampler? sampler = null, ShaderPair? effect = null, BlendStateDescription? blendState = null, DepthStencilStateDescription? depthStencilState = null, RasterizerStateDescription? rasterizerState = null, Matrix4x4? projection = null, Matrix4x4? view = null, Rectangle? scissorRect = null) {
         if (this._begun) {
             throw new Exception("The SpriteBatch has already begun!");
         }
@@ -319,7 +319,7 @@ public class SpriteBatch : Disposable {
         this._begun = true;
         this._currentCommandList = commandList;
         this._mainOutput = this._currentOutput = this._requestedOutput = output;
-        this._mainEffect = this._currentEffect = this._requestedEffect = effect ?? GlobalResource.DefaultSpriteEffect;
+        this._mainShaderPair = this._currentShaderPair = this._requestedShaderPair = effect ?? GlobalResource.DefaultSpriteShaderPair;
         this._mainBlendState = this._currentBlendState = this._requestedBlendState = blendState ?? BlendStateDescription.SINGLE_ALPHA_BLEND;
         this._mainDepthStencilState = this._currentDepthStencilState = this._requestedDepthStencilState = depthStencilState ?? DepthStencilStateDescription.DEPTH_ONLY_LESS_EQUAL;
         this._mainRasterizerState = this._currentRasterizerState = this._requestedRasterizerState = rasterizerState ?? RasterizerStateDescription.CULL_NONE;
@@ -384,33 +384,33 @@ public class SpriteBatch : Disposable {
     }
 
     /// <summary>
-    /// Retrieves the current <see cref="Effect"/> being used by the <see cref="SpriteBatch"/>.
+    /// Retrieves the current <see cref="ShaderPair"/> being used by the <see cref="SpriteBatch"/>.
     /// </summary>
-    /// <returns>The active <see cref="Effect"/> instance used for rendering, or null if no effect is set.</returns>
+    /// <returns>The active <see cref="ShaderPair"/> instance used for rendering, or null if no effect is set.</returns>
     /// <exception cref="Exception">Thrown if the <see cref="SpriteBatch"/> has not begun.</exception>
-    public Effect GetCurrentEffect() {
+    public ShaderPair GetCurrentEffect() {
         if (!this._begun) {
             throw new Exception("The SpriteBatch has not begun yet!");
         }
         
-        return this._currentEffect;
+        return this._currentShaderPair;
     }
 
     /// <summary>
-    /// Push the requested <see cref="Effect"/> for the <see cref="SpriteBatch"/>.
+    /// Push the requested <see cref="ShaderPair"/> for the <see cref="SpriteBatch"/>.
     /// </summary>
-    /// <param name="effect">The <see cref="Effect"/> to apply for rendering.</param>
+    /// <param name="shaderPair">The <see cref="ShaderPair"/> to apply for rendering.</param>
     /// <exception cref="Exception">Thrown if the <see cref="SpriteBatch"/> has not begun.</exception>
-    public void PushEffect(Effect effect) {
+    public void PushEffect(ShaderPair shaderPair) {
         if (!this._begun) {
             throw new Exception("The SpriteBatch has not begun yet!");
         }
         
-        this._requestedEffect = effect;
+        this._requestedShaderPair = shaderPair;
     }
 
     /// <summary>
-    /// Pop the current <see cref="Effect"/> to the main effect used by the <see cref="SpriteBatch"/>.
+    /// Pop the current <see cref="ShaderPair"/> to the main effect used by the <see cref="SpriteBatch"/>.
     /// </summary>
     /// <exception cref="Exception">Thrown if the <see cref="SpriteBatch"/> has not begun.</exception>
     public void PopEffect() {
@@ -418,7 +418,7 @@ public class SpriteBatch : Disposable {
             throw new Exception("The SpriteBatch has not begun yet!");
         }
         
-        this._requestedEffect = this._mainEffect;
+        this._requestedShaderPair = this._mainShaderPair;
     }
     
     /// <summary>
@@ -793,7 +793,7 @@ public class SpriteBatch : Disposable {
         }
         
         if (!this._currentOutput.Equals(this._requestedOutput) ||
-            this._currentEffect != this._requestedEffect ||
+            this._currentShaderPair != this._requestedShaderPair ||
             !this._currentBlendState.Equals(this._requestedBlendState) ||
             !this._currentDepthStencilState.Equals(this._requestedDepthStencilState) ||
             !this._currentRasterizerState.Equals(this._requestedRasterizerState) ||
@@ -806,7 +806,7 @@ public class SpriteBatch : Disposable {
         }
 
         this._currentOutput = this._requestedOutput;
-        this._currentEffect = this._requestedEffect;
+        this._currentShaderPair = this._requestedShaderPair;
         this._currentBlendState = this._requestedBlendState;
         this._currentDepthStencilState = this._requestedDepthStencilState;
         this._currentRasterizerState = this._requestedRasterizerState;
@@ -820,9 +820,9 @@ public class SpriteBatch : Disposable {
         this._pipelineDescription.BlendState = this._currentBlendState;
         this._pipelineDescription.DepthStencilState = this._currentDepthStencilState;
         this._pipelineDescription.RasterizerState = this._currentRasterizerState;
-        this._pipelineDescription.BufferLayouts = this._currentEffect.GetBufferLayouts();
-        this._pipelineDescription.TextureLayouts = this._currentEffect.GetTextureLayouts();
-        this._pipelineDescription.ShaderSet = this._currentEffect.ShaderSet;
+        this._pipelineDescription.BufferLayouts = this._currentShaderPair.GetBufferLayouts();
+        this._pipelineDescription.TextureLayouts = this._currentShaderPair.GetTextureLayouts();
+        this._pipelineDescription.ShaderSet = this._currentShaderPair.ShaderSet;
         this._pipelineDescription.Outputs = this._currentOutput;
         
         if (this._currentBatchCount >= (this.Capacity - 1)) {
@@ -860,13 +860,13 @@ public class SpriteBatch : Disposable {
         this._currentCommandList.SetIndexBuffer(this._indexBuffer, IndexFormat.UInt16);
         
         // Set pipeline.
-        this._currentCommandList.SetPipeline(this._currentEffect.GetPipeline(this._pipelineDescription).Pipeline);
+        this._currentCommandList.SetPipeline(this._currentShaderPair.GetPipeline(this._pipelineDescription).Pipeline);
         
         // Set projection view buffer.
-        this._currentCommandList.SetGraphicsResourceSet(this._currentEffect.GetBufferLayoutSlot("ProjectionViewBuffer"), this._projViewBuffer.GetResourceSet(this._currentEffect.GetBufferLayout("ProjectionViewBuffer")));
+        this._currentCommandList.SetGraphicsResourceSet(this._currentShaderPair.GetBufferLayoutSlot("ProjectionViewBuffer"), this._projViewBuffer.GetResourceSet(this._currentShaderPair.GetBufferLayout("ProjectionViewBuffer")));
 
         // Set resourceSet of the texture.
-        this._currentCommandList.SetGraphicsResourceSet(this._currentEffect.GetTextureLayoutSlot("fTexture"), this._currentTexture.GetResourceSet(this._currentSampler, this._currentEffect.GetTextureLayout("fTexture")));
+        this._currentCommandList.SetGraphicsResourceSet(this._currentShaderPair.GetTextureLayoutSlot("fTexture"), this._currentTexture.GetResourceSet(this._currentSampler, this._currentShaderPair.GetTextureLayout("fTexture")));
         
         // Set scissor rect.
         if (this._pipelineDescription.RasterizerState.ScissorTestEnabled && this._currentScissorRect != null) {
@@ -875,7 +875,7 @@ public class SpriteBatch : Disposable {
         }
         
         // Apply effect.
-        this._currentEffect.Apply(this._currentCommandList);
+        this._currentShaderPair.Apply(this._currentCommandList);
         
         // Draw.
         this._currentCommandList.DrawIndexed(this._currentBatchCount * IndicesPerQuad);

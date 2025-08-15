@@ -55,8 +55,8 @@ public class FullScreenRenderPass : Disposable {
     /// <param name="blendState">An optional blend state configuration for blending operations. Defaults to alpha blending if not provided.</param>
     /// <param name="depthStencilState">An optional depth-stencil state description to control depth and stencil testing. A disabled state is used by default.</param>
     /// <param name="rasterizerState">An optional rasterizer state description to configure rasterization settings. Defaults to a standard rasterizer configuration if not specified.</param>
-    public void Draw(CommandList commandList, RenderTexture2D renderTexture, OutputDescription output, Effect? effect = null, Sampler? sampler = null, BlendStateDescription? blendState = null, DepthStencilStateDescription? depthStencilState = null, RasterizerStateDescription? rasterizerState = null) {
-        Effect finalEffect = effect ?? GlobalResource.DefaultFullScreenRenderPassEffect;
+    public void Draw(CommandList commandList, RenderTexture2D renderTexture, OutputDescription output, ShaderPair? effect = null, Sampler? sampler = null, BlendStateDescription? blendState = null, DepthStencilStateDescription? depthStencilState = null, RasterizerStateDescription? rasterizerState = null) {
+        ShaderPair finalShaderPair = effect ?? GlobalResource.DefaultFullScreenRenderPassShaderPair;
         Sampler finalSampler = sampler ?? GraphicsHelper.GetSampler(this.GraphicsDevice, SamplerType.PointClamp);
         BlendStateDescription finalBlendState = blendState ?? BlendStateDescription.SINGLE_ALPHA_BLEND;
         DepthStencilStateDescription finalDepthStencilState = depthStencilState ?? DepthStencilStateDescription.DISABLED;
@@ -66,22 +66,22 @@ public class FullScreenRenderPass : Disposable {
         this._pipelineDescription.BlendState = finalBlendState;
         this._pipelineDescription.DepthStencilState = finalDepthStencilState;
         this._pipelineDescription.RasterizerState = finalRasterizerState;
-        this._pipelineDescription.BufferLayouts = finalEffect.GetBufferLayouts();
-        this._pipelineDescription.TextureLayouts = finalEffect.GetTextureLayouts();
-        this._pipelineDescription.ShaderSet = finalEffect.ShaderSet;
+        this._pipelineDescription.BufferLayouts = finalShaderPair.GetBufferLayouts();
+        this._pipelineDescription.TextureLayouts = finalShaderPair.GetTextureLayouts();
+        this._pipelineDescription.ShaderSet = finalShaderPair.ShaderSet;
         this._pipelineDescription.Outputs = output;
         
         // Set vertex buffer.
         commandList.SetVertexBuffer(0, this._vertexBuffer);
         
         // Set pipeline.
-        commandList.SetPipeline(finalEffect.GetPipeline(this._pipelineDescription).Pipeline);
+        commandList.SetPipeline(finalShaderPair.GetPipeline(this._pipelineDescription).Pipeline);
         
         // Set resourceSet of the texture.
-        commandList.SetGraphicsResourceSet(finalEffect.GetTextureLayoutSlot("fTexture"), renderTexture.GetResourceSet(finalSampler, finalEffect.GetTextureLayout("fTexture").Layout));
+        commandList.SetGraphicsResourceSet(finalShaderPair.GetTextureLayoutSlot("fTexture"), renderTexture.GetResourceSet(finalSampler, finalShaderPair.GetTextureLayout("fTexture").Layout));
         
         // Apply effect.
-        finalEffect.Apply(commandList);
+        finalShaderPair.Apply(commandList);
         
         // Draw.
         commandList.Draw(6);

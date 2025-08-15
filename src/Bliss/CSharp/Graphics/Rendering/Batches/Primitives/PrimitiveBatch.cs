@@ -86,19 +86,19 @@ public class PrimitiveBatch : Disposable {
     private OutputDescription _requestedOutput;
     
     /// <summary>
-    /// The main <see cref="Effect"/>.
+    /// The main <see cref="ShaderPair"/>.
     /// </summary>
-    private Effect _mainEffect;
+    private ShaderPair _mainShaderPair;
     
     /// <summary>
-    /// The current <see cref="Effect"/>.
+    /// The current <see cref="ShaderPair"/>.
     /// </summary>
-    private Effect _currentEffect;
+    private ShaderPair _currentShaderPair;
 
     /// <summary>
-    /// The requested <see cref="Effect"/>.
+    /// The requested <see cref="ShaderPair"/>.
     /// </summary>
-    private Effect _requestedEffect;
+    private ShaderPair _requestedShaderPair;
     
     /// <summary>
     /// The main <see cref="BlendStateDescription"/>.
@@ -231,7 +231,7 @@ public class PrimitiveBatch : Disposable {
     /// <param name="view">Optional. The view matrix for the rendering. Defaults to the identity matrix if not specified.</param>
     /// <param name="scissorRect">An optional <see cref="Rectangle"/> that defines the scissor rectangle for rendering. No scissor rect is applied if not specified.</param>
     /// <exception cref="Exception">Thrown when the method is called before the previous batch has been properly ended.</exception>
-    public void Begin(CommandList commandList, OutputDescription output, Effect? effect = null, BlendStateDescription? blendState = null, DepthStencilStateDescription? depthStencilState = null, RasterizerStateDescription? rasterizerState = null, Matrix4x4? projection = null, Matrix4x4? view = null, Rectangle? scissorRect = null) {
+    public void Begin(CommandList commandList, OutputDescription output, ShaderPair? effect = null, BlendStateDescription? blendState = null, DepthStencilStateDescription? depthStencilState = null, RasterizerStateDescription? rasterizerState = null, Matrix4x4? projection = null, Matrix4x4? view = null, Rectangle? scissorRect = null) {
         if (this._begun) {
             throw new Exception("The PrimitiveBatch has already begun!");
         }
@@ -239,7 +239,7 @@ public class PrimitiveBatch : Disposable {
         this._begun = true;
         this._currentCommandList = commandList;
         this._mainOutput = this._currentOutput = this._requestedOutput = output;
-        this._mainEffect = this._currentEffect = this._requestedEffect = effect ?? GlobalResource.DefaultPrimitiveEffect;
+        this._mainShaderPair = this._currentShaderPair = this._requestedShaderPair = effect ?? GlobalResource.DefaultPrimitiveShaderPair;
         this._mainBlendState = this._currentBlendState = this._requestedBlendState = blendState ?? BlendStateDescription.SINGLE_ALPHA_BLEND;
         this._mainDepthStencilState = this._currentDepthStencilState = this._requestedDepthStencilState = depthStencilState ?? DepthStencilStateDescription.DEPTH_ONLY_LESS_EQUAL;
         this._mainRasterizerState = this._currentRasterizerState = this._requestedRasterizerState = rasterizerState ?? RasterizerStateDescription.CULL_NONE;
@@ -304,31 +304,31 @@ public class PrimitiveBatch : Disposable {
     /// <summary>
     /// Retrieves the currently active effect for the PrimitiveBatch.
     /// </summary>
-    /// <returns>The <see cref="Effect"/> that is currently being used by the PrimitiveBatch.</returns>
+    /// <returns>The <see cref="ShaderPair"/> that is currently being used by the PrimitiveBatch.</returns>
     /// <exception cref="Exception">Thrown if the <see cref="PrimitiveBatch"/> has not begun.</exception>
-    public Effect GetCurrentEffect() {
+    public ShaderPair GetCurrentEffect() {
         if (!this._begun) {
             throw new Exception("The PrimitiveBatch has not begun yet!");
         }
         
-        return this._currentEffect;
+        return this._currentShaderPair;
     }
 
     /// <summary>
-    /// Push the requested <see cref="Effect"/> for the <see cref="PrimitiveBatch"/>.
+    /// Push the requested <see cref="ShaderPair"/> for the <see cref="PrimitiveBatch"/>.
     /// </summary>
-    /// <param name="effect">The <see cref="Effect"/> to apply for rendering.</param>
+    /// <param name="shaderPair">The <see cref="ShaderPair"/> to apply for rendering.</param>
     /// <exception cref="Exception">Thrown if the <see cref="PrimitiveBatch"/> has not begun.</exception>
-    public void PushEffect(Effect effect) {
+    public void PushEffect(ShaderPair shaderPair) {
         if (!this._begun) {
             throw new Exception("The PrimitiveBatch has not begun yet!");
         }
         
-        this._requestedEffect = effect;
+        this._requestedShaderPair = shaderPair;
     }
     
     /// <summary>
-    /// Pop the current <see cref="Effect"/> to the main effect used by the <see cref="PrimitiveBatch"/>.
+    /// Pop the current <see cref="ShaderPair"/> to the main effect used by the <see cref="PrimitiveBatch"/>.
     /// </summary>
     /// <exception cref="Exception">Thrown if the <see cref="PrimitiveBatch"/> has not begun.</exception>
     public void PopEffect() {
@@ -336,7 +336,7 @@ public class PrimitiveBatch : Disposable {
             throw new Exception("The PrimitiveBatch has not begun yet!");
         }
         
-        this._requestedEffect = this._mainEffect;
+        this._requestedShaderPair = this._mainShaderPair;
     }
 
     /// <summary>
@@ -1147,7 +1147,7 @@ public class PrimitiveBatch : Disposable {
         }
         
         if (!this._currentOutput.Equals(this._requestedOutput) ||
-            this._currentEffect != this._requestedEffect ||
+            this._currentShaderPair != this._requestedShaderPair ||
             !this._currentBlendState.Equals(this._requestedBlendState) ||
             !this._currentDepthStencilState.Equals(this._requestedDepthStencilState) ||
             !this._currentRasterizerState.Equals(this._requestedRasterizerState) ||
@@ -1158,7 +1158,7 @@ public class PrimitiveBatch : Disposable {
         }
 
         this._currentOutput = this._requestedOutput;
-        this._currentEffect = this._requestedEffect;
+        this._currentShaderPair = this._requestedShaderPair;
         this._currentBlendState = this._requestedBlendState;
         this._currentDepthStencilState = this._requestedDepthStencilState;
         this._currentRasterizerState = this._requestedRasterizerState;
@@ -1170,9 +1170,9 @@ public class PrimitiveBatch : Disposable {
         this._pipelineDescription.BlendState = this._currentBlendState;
         this._pipelineDescription.DepthStencilState = this._currentDepthStencilState;
         this._pipelineDescription.RasterizerState = this._currentRasterizerState;
-        this._pipelineDescription.BufferLayouts = this._currentEffect.GetBufferLayouts();
-        this._pipelineDescription.TextureLayouts = this._currentEffect.GetTextureLayouts();
-        this._pipelineDescription.ShaderSet = this._currentEffect.ShaderSet;
+        this._pipelineDescription.BufferLayouts = this._currentShaderPair.GetBufferLayouts();
+        this._pipelineDescription.TextureLayouts = this._currentShaderPair.GetTextureLayouts();
+        this._pipelineDescription.ShaderSet = this._currentShaderPair.ShaderSet;
         this._pipelineDescription.Outputs = this._currentOutput;
         
         if (this._currentBatchCount + vertices.Count >= this._vertices.Length) {
@@ -1208,10 +1208,10 @@ public class PrimitiveBatch : Disposable {
         this._currentCommandList.SetVertexBuffer(0, this._vertexBuffer);
         
         // Set pipeline.
-        this._currentCommandList.SetPipeline(this._currentEffect.GetPipeline(this._pipelineDescription).Pipeline);
+        this._currentCommandList.SetPipeline(this._currentShaderPair.GetPipeline(this._pipelineDescription).Pipeline);
         
         // Set projection view buffer.
-        this._currentCommandList.SetGraphicsResourceSet(this._currentEffect.GetBufferLayoutSlot("ProjectionViewBuffer"), this._projViewBuffer.GetResourceSet(this._currentEffect.GetBufferLayout("ProjectionViewBuffer")));
+        this._currentCommandList.SetGraphicsResourceSet(this._currentShaderPair.GetBufferLayoutSlot("ProjectionViewBuffer"), this._projViewBuffer.GetResourceSet(this._currentShaderPair.GetBufferLayout("ProjectionViewBuffer")));
         
         // Set scissor rect.
         if (this._pipelineDescription.RasterizerState.ScissorTestEnabled && this._currentScissorRect != null) {
@@ -1220,7 +1220,7 @@ public class PrimitiveBatch : Disposable {
         }
         
         // Apply effect.
-        this._currentEffect.Apply(this._currentCommandList);
+        this._currentShaderPair.Apply(this._currentCommandList);
         
         // Draw.
         this._currentCommandList.Draw(this._currentBatchCount);

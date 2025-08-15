@@ -79,7 +79,7 @@ public class ImmediateRenderer : Disposable {
     /// <summary>
     /// The currently bound effect.
     /// </summary>
-    private Effect _currentEffect;
+    private ShaderPair _currentShaderPair;
 
     /// <summary>
     /// The currently bound blendState.
@@ -145,9 +145,9 @@ public class ImmediateRenderer : Disposable {
     /// <summary>
     /// Retrieves the current effect being used by the renderer.
     /// </summary>
-    /// <returns>The currently set <see cref="Effect"/> instance.</returns>
-    public Effect GetCurrentEffect() {
-        return this._currentEffect;
+    /// <returns>The currently set <see cref="ShaderPair"/> instance.</returns>
+    public ShaderPair GetCurrentEffect() {
+        return this._currentShaderPair;
     }
 
     /// <summary>
@@ -155,13 +155,13 @@ public class ImmediateRenderer : Disposable {
     /// If the provided effect is null, it defaults to the global default immediate renderer effect.
     /// </summary>
     /// <param name="effect">The effect to be used. If null, the default ImmediateRenderer effect will be used.</param>
-    public void SetEffect(Effect? effect) {
-        this._currentEffect = effect ?? GlobalResource.DefaultImmediateRendererEffect;
+    public void SetEffect(ShaderPair? effect) {
+        this._currentShaderPair = effect ?? GlobalResource.DefaultImmediateRendererShaderPair;
         
         // Update pipeline description.
-        this._pipelineDescription.BufferLayouts = this._currentEffect.GetBufferLayouts();
-        this._pipelineDescription.TextureLayouts = this._currentEffect.GetTextureLayouts();
-        this._pipelineDescription.ShaderSet = this._currentEffect.ShaderSet;
+        this._pipelineDescription.BufferLayouts = this._currentShaderPair.GetBufferLayouts();
+        this._pipelineDescription.TextureLayouts = this._currentShaderPair.GetTextureLayouts();
+        this._pipelineDescription.ShaderSet = this._currentShaderPair.ShaderSet;
     }
 
     /// <summary>
@@ -2017,16 +2017,16 @@ public class ImmediateRenderer : Disposable {
             commandList.SetIndexBuffer(this._indexBuffer, IndexFormat.UInt32);
 
             // Set pipeline.
-            commandList.SetPipeline(this._currentEffect.GetPipeline(this._pipelineDescription).Pipeline);
+            commandList.SetPipeline(this._currentShaderPair.GetPipeline(this._pipelineDescription).Pipeline);
         
             // Set matrix buffer.
-            commandList.SetGraphicsResourceSet(this._currentEffect.GetBufferLayoutSlot("MatrixBuffer"), this._matrixBuffer.GetResourceSet(this._currentEffect.GetBufferLayout("MatrixBuffer")));
+            commandList.SetGraphicsResourceSet(this._currentShaderPair.GetBufferLayoutSlot("MatrixBuffer"), this._matrixBuffer.GetResourceSet(this._currentShaderPair.GetBufferLayout("MatrixBuffer")));
 
             // Set resourceSet of the texture.
-            commandList.SetGraphicsResourceSet(this._currentEffect.GetTextureLayoutSlot("fTexture"), this._currentTexture.GetResourceSet(this._currentSampler, this._currentEffect.GetTextureLayout("fTexture")));
+            commandList.SetGraphicsResourceSet(this._currentShaderPair.GetTextureLayoutSlot("fTexture"), this._currentTexture.GetResourceSet(this._currentSampler, this._currentShaderPair.GetTextureLayout("fTexture")));
             
             // Apply effect.
-            this._currentEffect.Apply(commandList);
+            this._currentShaderPair.Apply(commandList);
             
             // Draw.
             commandList.DrawIndexed((uint) this._indexCount);
@@ -2040,16 +2040,16 @@ public class ImmediateRenderer : Disposable {
             commandList.SetVertexBuffer(0, this._vertexBuffer);
 
             // Set pipeline.
-            commandList.SetPipeline(this._currentEffect.GetPipeline(this._pipelineDescription).Pipeline);
+            commandList.SetPipeline(this._currentShaderPair.GetPipeline(this._pipelineDescription).Pipeline);
         
             // Set matrix buffer.
-            commandList.SetGraphicsResourceSet(this._currentEffect.GetBufferLayoutSlot("MatrixBuffer"), this._matrixBuffer.GetResourceSet(this._currentEffect.GetBufferLayout("MatrixBuffer")));
+            commandList.SetGraphicsResourceSet(this._currentShaderPair.GetBufferLayoutSlot("MatrixBuffer"), this._matrixBuffer.GetResourceSet(this._currentShaderPair.GetBufferLayout("MatrixBuffer")));
         
             // Set resourceSet of the texture.
-            commandList.SetGraphicsResourceSet(this._currentEffect.GetTextureLayoutSlot("fTexture"), this._currentTexture.GetResourceSet(this._currentSampler, this._currentEffect.GetTextureLayout("fTexture")));
+            commandList.SetGraphicsResourceSet(this._currentShaderPair.GetTextureLayoutSlot("fTexture"), this._currentTexture.GetResourceSet(this._currentSampler, this._currentShaderPair.GetTextureLayout("fTexture")));
             
             // Apply effect.
-            this._currentEffect.Apply(commandList);
+            this._currentShaderPair.Apply(commandList);
             
             // Draw.
             commandList.Draw((uint) this._vertexCount);
