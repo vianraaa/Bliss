@@ -8,6 +8,8 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <NoWarn>$(NoWarn);CS8618</NoWarn>
         <LangVersion>13</LangVersion>
+        <Configurations>Debug;Release;RelWithDbgInfo</Configurations>
+        <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
 
     <!-- Nuget -->

@@ -312,9 +312,8 @@ public class SpriteBatch : Disposable {
     /// <param name="scissorRect">An optional <see cref="Rectangle"/> that defines the scissor rectangle for rendering. No scissor rect is applied if not specified.</param>
     /// <exception cref="Exception">Thrown when the method is called before the previous batch has been properly ended.</exception>
     public void Begin(CommandList commandList, OutputDescription output, Sampler? sampler = null, ShaderPair? effect = null, BlendStateDescription? blendState = null, DepthStencilStateDescription? depthStencilState = null, RasterizerStateDescription? rasterizerState = null, Matrix4x4? projection = null, Matrix4x4? view = null, Rectangle? scissorRect = null) {
-        if (this._begun) {
-            throw new Exception("The SpriteBatch has already begun!");
-        }
+        if (this._begun)
+            End();
         
         this._begun = true;
         this._currentCommandList = commandList;
